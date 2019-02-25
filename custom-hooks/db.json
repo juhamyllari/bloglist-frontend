@@ -1,0 +1,32 @@
+{
+  "notes": [
+    {
+      "content": "custom-hookit aivan mahtavia",
+      "id": 1
+    },
+    {
+      "content": "paras feature ikinä <3",
+      "id": 2
+    },
+    {
+      "content": "jokohan se toimii?",
+      "id": 3
+    },
+    {
+      "content": "tuntuu toimivan!",
+      "id": 4
+    }
+  ],
+  "persons": [
+    {
+      "name": "mluukkai",
+      "number": "040-5483923",
+      "id": 1
+    },
+    {
+      "name": "fmercury",
+      "number": "999-1337",
+      "id": 2
+    }
+  ]
+}
