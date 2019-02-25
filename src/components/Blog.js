@@ -18,7 +18,7 @@ const Blog = ({ blog, user, like, remove }) => {
     remove(blog)
   }
   if (!expanded) return (
-    <div style={blogStyle} onClick={() => setExpanded(true)}>
+    <div style={blogStyle} onClick={() => setExpanded(true)} className="blogdiv">
       {blog.title} {blog.author}
     </div>
   )

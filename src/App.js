@@ -3,12 +3,13 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Togglable from './components/Togglable'
+import useField from './hooks/index'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const username = useField('text')
+  const password = useField('text')
   const [message, setMessage] = useState('')
   const [messageIsError, setMessageIsError] = useState(false)
 
@@ -19,7 +20,7 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
@@ -39,13 +40,15 @@ const App = () => {
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const user = await loginService.login({ username, password })
+      const user = await loginService.login(
+        { username: username.value,
+          password: password.value })
       setUser(user)
       window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
+        'loggedBlogAppUser', JSON.stringify(user)
       )
-      setUsername('')
-      setPassword('')
+      username.reset()
+      password.reset()
     } catch (error) {
       showMessage('wrong username or password', true)
     }
@@ -63,9 +66,8 @@ const App = () => {
       <Login
         handleLogin={handleLogin}
         username={username}
-        setUsername={setUsername}
         password={password}
-        setPassword={setPassword}/>
+      />
       </>
     )
   } else {
@@ -101,26 +103,18 @@ const Notifier = ({ message, messageIsError }) => {
   }
 }
 
-const Login = ({ handleLogin, username, setUsername, password, setPassword }) => {
+const Login = ({ handleLogin, username, password }) => {
   return (
     <div>
       <h2>Log into application</h2>
       <form onSubmit={handleLogin}>
         <div>
           username
-          <input
-            type="text"
-            value={username}
-            name="Username"
-            onChange={({ target }) => setUsername(target.value)}/>
+          <input { ...username.formProps } />
         </div>
         <div>
           password
-          <input
-            type="text"
-            value={password}
-            name="Password"
-            onChange={({ target }) => setPassword(target.value)}/>
+          <input { ...password.formProps }/>
         </div>
         <button type="submit">kirjaudu</button>
       </form>
@@ -131,7 +125,7 @@ const Login = ({ handleLogin, username, setUsername, password, setPassword }) =>
 const BlogDisplay = ({ user, setUser, blogs, setBlogs }) => {
   const handleLogout = () => {
     setUser(null)
-    window.localStorage.removeItem('loggedBlogappUser')
+    window.localStorage.removeItem('loggedBlogAppUser')
   }
   const like = async (id) => {
     const blog = blogs.find((b) => b.id === id)
@@ -163,15 +157,21 @@ const BlogDisplay = ({ user, setUser, blogs, setBlogs }) => {
 }
 
 const CreateBlog = ({ blogs, setBlogs, showMessage }) => {
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
-  const handleCreate = (event) => {
+  const title = useField('')
+  const author = useField('')
+  const url = useField('')
+  const handleCreate = async (event) => {
     event.preventDefault()
-    const newBlog = { title, author, url }
-    blogService.create(newBlog)
-    showMessage(`added new blog: ${title} by ${author}`, false)
-    setBlogs(blogs.concat(newBlog))
+    const newBlog = {
+      title: title.value,
+      author: author.value,
+      url: url.value }
+    const createdBlog = await blogService.create(newBlog)
+    showMessage(`added new blog: ${title.value} by ${author.value}`, false)
+    setBlogs(blogs.concat(createdBlog))
+    title.reset()
+    author.reset()
+    url.reset()
   }
   return (
     <div>
@@ -179,27 +179,15 @@ const CreateBlog = ({ blogs, setBlogs, showMessage }) => {
       <form onSubmit={handleCreate}>
         <div>
           title:
-          <input
-            type="text"
-            value={title}
-            name="Username"
-            onChange={({ target }) => setTitle(target.value)}/>
+          <input { ...title.formProps } />
         </div>
         <div>
           author:
-          <input
-            type="text"
-            value={author}
-            name="Username"
-            onChange={({ target }) => setAuthor(target.value)}/>
+          <input { ...author.formProps } />
         </div>
         <div>
           url:
-          <input
-            type="text"
-            value={url}
-            name="Username"
-            onChange={({ target }) => setUrl(target.value)}/>
+          <input { ...url.formProps } />
         </div>
         <button type="submit">create</button>
       </form>
